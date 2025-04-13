@@ -106,18 +106,18 @@ function createUserComponent() {
     });
 
     // Transform posts data for display
-    function transformPosts(posts) {
+    function transformPosts(posts, userName) {
         return posts.map(post => `Post ID: ${post.id}, Title: ${post.title}`).join('\n');
     }
 
     // Async function to fetch user's posts
-    async function fetchUserPostsData() {
+    async function fetchUserPostsData(userName) {
         try {
             const response = await new Promise((resolve) => {
                 setTimeout(() => {
                     resolve([
-                        { id: 101, title: "John's First Post" },
-                        { id: 102, title: "John's Second Post" }
+                        { id: 101, title: `${userName}'s First Post` },
+                        { id: 102, title: `${userName}'s Second Post` }
                     ]);
                 }, 1000);
             });
@@ -128,18 +128,33 @@ function createUserComponent() {
         }
     }
 
+    // Update existing posts' titles when the name changes
+    function updatePostTitles(posts, newName) {
+        return posts.map(post => ({
+            ...post,
+            title: post.title.replace(/^(John Doe|Jane Smith)/, newName)
+        }));
+    }
+
     // Render the user component
     function render() {
         const state = userStateManager.getState();
         const userDisplay = document.getElementById('user-display');
         userDisplay.textContent = `User: ${state.name}, Age: ${state.age}`;
         if (state.posts.length > 0) {
-            updateOutput('output4', transformPosts(state.posts));
+            updateOutput('output4', transformPosts(state.posts, state.name));
         }
     }
 
     // Subscribe to state changes
-    userStateManager.subscribe(render);
+    userStateManager.subscribe((newState) => {
+        // When the name changes, update the titles of existing posts
+        if (newState.posts.length > 0) {
+            const updatedPosts = updatePostTitles(newState.posts, newState.name);
+            userStateManager.setState({ posts: updatedPosts });
+        }
+        render();
+    });
     render(); // Initial render
 
     // Function to update the user's name
@@ -151,7 +166,8 @@ function createUserComponent() {
     // Function to fetch and display user's posts
     async function fetchUserPosts() {
         updateOutput('output4', 'Fetching user posts...');
-        const posts = await fetchUserPostsData();
+        const currentName = userStateManager.getState().name;
+        const posts = await fetchUserPostsData(currentName);
         userStateManager.setState({ posts });
     }
 

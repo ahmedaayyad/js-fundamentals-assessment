@@ -71,3 +71,17 @@ button:hover {
 .error {
     color: #e74c3c;
 }
+
+/* User Component Specific Styles */
+.user-component {
+    margin-bottom: 10px;
+}
+
+#user-display {
+    padding: 10px;
+    background: #e8f4f8;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 1em;
+    color: #2c3e50;
+}

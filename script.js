@@ -95,3 +95,70 @@ function unsubscribeListener() {
         unsubscribe = null;
     }
 }
+
+// Exercise 4: User Component
+function createUserComponent() {
+    // State management for the user component
+    const userStateManager = createStateManager({
+        name: "John Doe",
+        age: 28,
+        posts: []
+    });
+
+    // Transform posts data for display
+    function transformPosts(posts) {
+        return posts.map(post => `Post ID: ${post.id}, Title: ${post.title}`).join('\n');
+    }
+
+    // Async function to fetch user's posts
+    async function fetchUserPostsData() {
+        try {
+            const response = await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve([
+                        { id: 101, title: "John's First Post" },
+                        { id: 102, title: "John's Second Post" }
+                    ]);
+                }, 1000);
+            });
+            return response;
+        } catch (error) {
+            updateOutput('output4', `Error fetching posts: ${error.message}`);
+            return [];
+        }
+    }
+
+    // Render the user component
+    function render() {
+        const state = userStateManager.getState();
+        const userDisplay = document.getElementById('user-display');
+        userDisplay.textContent = `User: ${state.name}, Age: ${state.age}`;
+        if (state.posts.length > 0) {
+            updateOutput('output4', transformPosts(state.posts));
+        }
+    }
+
+    // Subscribe to state changes
+    userStateManager.subscribe(render);
+    render(); // Initial render
+
+    // Function to update the user's name
+    function updateUserName() {
+        const newName = userStateManager.getState().name === "John Doe" ? "Jane Smith" : "John Doe";
+        userStateManager.setState({ name: newName });
+    }
+
+    // Function to fetch and display user's posts
+    async function fetchUserPosts() {
+        updateOutput('output4', 'Fetching user posts...');
+        const posts = await fetchUserPostsData();
+        userStateManager.setState({ posts });
+    }
+
+    // Expose functions to the global scope for button onclick handlers
+    window.updateUserName = updateUserName;
+    window.fetchUserPosts = fetchUserPosts;
+}
+
+// Initialize the User Component on page load
+createUserComponent();

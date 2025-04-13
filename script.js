@@ -1,28 +1,27 @@
-// JavaScript Fundamentals Assessment Exercises
-
-// Exercise 1: Data Transformation
-// Create a function that transforms an array of objects into a new format
-function transformData(data) {
-    // Input: Array of objects with name and age
-    // Output: Array of strings in format "Name: [name], Age: [age]"
-    return data.map(item => `Name: ${item.name}, Age: ${item.age}`);
+// Utility to update output divs
+function updateOutput(divId, content) {
+    const outputDiv = document.getElementById(divId);
+    outputDiv.textContent = content;
 }
 
-// Test for Exercise 1
-console.log("Exercise 1: Data Transformation");
-const sampleData = [
-    { name: "Alice", age: 25 },
-    { name: "Bob", age: 30 },
-    { name: "Charlie", age: 35 }
-];
-console.log(transformData(sampleData));
-// Expected Output: ["Name: Alice, Age: 25", "Name: Bob, Age: 30", "Name: Charlie, Age: 35"]
+// Exercise 1: Data Transformation
+function transformData(data) {
+    return data.map(item => `Name: ${item.name}, Age: ${item.age}`).join('\n');
+}
+
+function runTransformData() {
+    const sampleData = [
+        { name: "Alice", age: 25 },
+        { name: "Bob", age: 30 },
+        { name: "Charlie", age: 35 }
+    ];
+    const result = transformData(sampleData);
+    updateOutput('output1', result);
+}
 
 // Exercise 2: Async Data Fetching
-// Simulate fetching data asynchronously (e.g., from an API)
 async function fetchData(url) {
     try {
-        // Simulate an API call with a Promise and setTimeout
         const response = await new Promise((resolve) => {
             setTimeout(() => {
                 resolve([
@@ -31,39 +30,32 @@ async function fetchData(url) {
                 ]);
             }, 1000);
         });
-        return response;
+        return JSON.stringify(response, null, 2);
     } catch (error) {
-        console.error("Error fetching data:", error);
-        return [];
+        return `Error fetching data: ${error.message}`;
     }
 }
 
-// Test for Exercise 2
-console.log("\nExercise 2: Async Data Fetching");
-(async () => {
+async function runFetchData() {
+    updateOutput('output2', 'Fetching data...');
     const data = await fetchData("https://fake-api.com/posts");
-    console.log(data);
-    // Expected Output (after 1 second): [{ id: 1, title: "Post 1" }, { id: 2, title: "Post 2" }]
-})();
+    updateOutput('output2', data);
+}
 
 // Exercise 3: State Management
-// Simulate a React-like state management pattern using a closure
 function createStateManager(initialState) {
     let state = initialState;
     const listeners = [];
 
-    // Get current state
     function getState() {
         return state;
     }
 
-    // Update state and notify listeners
     function setState(newState) {
         state = { ...state, ...newState };
         listeners.forEach(listener => listener(state));
     }
 
-    // Subscribe to state changes
     function subscribe(listener) {
         listeners.push(listener);
         return () => {
@@ -75,24 +67,31 @@ function createStateManager(initialState) {
     return { getState, setState, subscribe };
 }
 
-// Test for Exercise 3
-console.log("\nExercise 3: State Management");
+// Initialize state manager for Exercise 3
 const stateManager = createStateManager({ count: 0, text: "Hello" });
+let unsubscribe;
 
-// Subscribe to state changes
-const unsubscribe = stateManager.subscribe((newState) => {
-    console.log("State updated:", newState);
-});
+// Listener to update UI on state change
+function stateListener(newState) {
+    updateOutput('output3', `State: ${JSON.stringify(newState, null, 2)}`);
+}
 
-// Update state
-stateManager.setState({ count: stateManager.getState().count + 1 });
-stateManager.setState({ text: "World" });
+// Subscribe on page load
+unsubscribe = stateManager.subscribe(stateListener);
+stateListener(stateManager.getState()); // Initial state
 
-// Unsubscribe and test one more update
-unsubscribe();
-stateManager.setState({ count: stateManager.getState().count + 1 });
+function incrementCount() {
+    stateManager.setState({ count: stateManager.getState().count + 1 });
+}
 
-// Expected Output:
-// State updated: { count: 1, text: "Hello" }
-// State updated: { count: 1, text: "World" }
-// (No output for the last setState because unsubscribed)
+function changeText() {
+    stateManager.setState({ text: stateManager.getState().text === "Hello" ? "World" : "Hello" });
+}
+
+function unsubscribeListener() {
+    if (unsubscribe) {
+        unsubscribe();
+        updateOutput('output3', 'Unsubscribed from state updates.');
+        unsubscribe = null;
+    }
+}

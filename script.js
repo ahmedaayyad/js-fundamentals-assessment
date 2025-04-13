@@ -103,7 +103,7 @@ function createUserComponent() {
         name: "John Doe",
         age: 28,
         posts: [],
-        isFetching: false // Add a flag to track fetching state
+        isFetching: false // Track fetching state
     });
 
     // Transform posts data for display
@@ -113,20 +113,19 @@ function createUserComponent() {
 
     // Async function to fetch user's posts
     async function fetchUserPostsData(userName) {
-        try {
-            const response = await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve([
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                try {
+                    const posts = [
                         { id: 101, title: `${userName}'s First Post` },
                         { id: 102, title: `${userName}'s Second Post` }
-                    ]);
-                }, 1000);
-            });
-            return response;
-        } catch (error) {
-            updateOutput('output4', `Error fetching posts: ${error.message}`);
-            return [];
-        }
+                    ];
+                    resolve(posts);
+                } catch (error) {
+                    reject(error);
+                }
+            }, 1000);
+        });
     }
 
     // Update existing posts' titles when the name changes
@@ -142,8 +141,8 @@ function createUserComponent() {
         const state = userStateManager.getState();
         const userDisplay = document.getElementById('user-display');
         userDisplay.textContent = `User: ${state.name}, Age: ${state.age}`;
-        
-        // Update output based on fetching state
+
+        // Update output based on state
         if (state.isFetching) {
             updateOutput('output4', 'Fetching user posts...');
         } else if (state.posts.length > 0) {
@@ -172,14 +171,20 @@ function createUserComponent() {
 
     // Function to fetch and display user's posts
     async function fetchUserPosts() {
-        // Set fetching state to true
-        userStateManager.setState({ isFetching: true });
-        
-        const currentName = userStateManager.getState().name;
-        const posts = await fetchUserPostsData(currentName);
-        
-        // Update state with fetched posts and reset fetching state
-        userStateManager.setState({ posts, isFetching: false });
+        try {
+            // Set fetching state to true and ensure it renders
+            userStateManager.setState({ isFetching: true });
+            
+            const currentName = userStateManager.getState().name;
+            const posts = await fetchUserPostsData(currentName);
+            
+            // Update state with fetched posts and reset fetching state
+            userStateManager.setState({ posts, isFetching: false });
+        } catch (error) {
+            // Handle errors and ensure fetching state is reset
+            userStateManager.setState({ isFetching: false });
+            updateOutput('output4', `Error fetching posts: ${error.message}`);
+        }
     }
 
     // Expose functions to the global scope for button onclick handlers

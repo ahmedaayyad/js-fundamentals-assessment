@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,37 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaScript Fundamentals Assessment</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap">
 </head>
 <body>
     <div class="container">
         <h1>JavaScript Fundamentals Assessment</h1>
 
-        <h2>Theoretical Questions</h2>
-        <div id="theoretical-answers"></div>
+        <!-- Exercise 1: Data Transformation -->
+        <div class="exercise">
+            <h2>Exercise 1: Data Transformation</h2>
+            <p>Transform an array of objects into formatted strings.</p>
+            <button onclick="runTransformData()">Run Transformation</button>
+            <div id="output1" class="output"></div>
+        </div>
 
-        <h2>Coding Exercises</h2>
-        <div>
-            <h3>Exercise 1: Data Transformation</h3>
-            <button onclick="runTransformUserData()">Run</button>
-            <pre id="output1"></pre>
+        <!-- Exercise 2: Async Data Fetching -->
+        <div class="exercise">
+            <h2>Exercise 2: Async Data Fetching</h2>
+            <p>Simulate fetching data from an API asynchronously.</p>
+            <button onclick="runFetchData()">Fetch Data</button>
+            <div id="output2" class="output"></div>
         </div>
-        <div>
-            <h3>Exercise 2: Async Data Fetching</h3>
-            <button onclick="runFetchPosts()">Run</button>
-            <pre id="output2"></pre>
-        </div>
-        <div>
-            <h3>Exercise 3: State Management</h3>
-            <button onclick="runTodoStore()">Run</button>
-            <pre id="output3"></pre>
-        </div>
-        <div>
-            <h3>Exercise 4: Group by Category</h3>
-            <button onclick="runGroupByCategory()">Run</button>
-            <pre id="output4"></pre>
+
+        <!-- Exercise 3: State Management -->
+        <div class="exercise">
+            <h2>Exercise 3: State Management</h2>
+            <p>Simulate React-like state management with a counter and text.</p>
+            <button onclick="incrementCount()">Increment Count</button>
+            <button onclick="changeText()">Change Text</button>
+            <button onclick="unsubscribeListener()">Unsubscribe</button>
+            <div id="output3" class="output"></div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

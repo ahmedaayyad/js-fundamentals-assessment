@@ -102,7 +102,8 @@ function createUserComponent() {
     const userStateManager = createStateManager({
         name: "John Doe",
         age: 28,
-        posts: []
+        posts: [],
+        isFetching: false // Add a flag to track fetching state
     });
 
     // Transform posts data for display
@@ -141,8 +142,14 @@ function createUserComponent() {
         const state = userStateManager.getState();
         const userDisplay = document.getElementById('user-display');
         userDisplay.textContent = `User: ${state.name}, Age: ${state.age}`;
-        if (state.posts.length > 0) {
+        
+        // Update output based on fetching state
+        if (state.isFetching) {
+            updateOutput('output4', 'Fetching user posts...');
+        } else if (state.posts.length > 0) {
             updateOutput('output4', transformPosts(state.posts, state.name));
+        } else {
+            updateOutput('output4', 'No posts yet. Click "Fetch User\'s Posts" to load posts.');
         }
     }
 
@@ -165,10 +172,14 @@ function createUserComponent() {
 
     // Function to fetch and display user's posts
     async function fetchUserPosts() {
-        updateOutput('output4', 'Fetching user posts...');
+        // Set fetching state to true
+        userStateManager.setState({ isFetching: true });
+        
         const currentName = userStateManager.getState().name;
         const posts = await fetchUserPostsData(currentName);
-        userStateManager.setState({ posts });
+        
+        // Update state with fetched posts and reset fetching state
+        userStateManager.setState({ posts, isFetching: false });
     }
 
     // Expose functions to the global scope for button onclick handlers

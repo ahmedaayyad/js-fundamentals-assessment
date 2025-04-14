@@ -1,37 +1,13 @@
-// script.js
-
-// Part 1: Theoretical Answers
-const theoreticalAnswers = `
-1. Closures and Scope:
-A closure is a function that retains access to its lexical scope even when executed outside that scope. In React, closures are used to maintain stateful logic, like a counter in a component. For example, a useEffect cleanup function can access variables from its parent scope to manage subscriptions or timers.
-
-2. Promises vs. Async/Await:
-Promises handle asynchronous operations with .then() and .catch(), but can lead to chained code that's hard to read. Async/await is syntactic sugar over Promises, making async code look synchronous and easier to follow. In React, async/await is preferred for fetching data in useEffect because it simplifies error handling and improves readability.
-
-3. Immutability in State Management:
-Immutability ensures state changes are predictable and prevents unintended side effects in React's rendering. Mutating state directly can cause components to not re-render. For example, to update an array in state, use spread operator: setState([...state, newItem]) instead of state.push(newItem).
-
-4. Arrow Functions and this:
-Arrow functions inherit 'this' from their surrounding scope, unlike regular functions where 'this' depends on how they're called. In React, arrow functions are used in event handlers to avoid binding 'this' manually, ensuring 'this' refers to the component instance, e.g., onClick={() => this.handleClick()}.
-`;
-
-// Display theoretical answers on page load
-document.getElementById('theoretical-answers').innerText = theoreticalAnswers;
-
-// Part 2: Coding Exercises
-
-// Exercise 1: Data Transformation
 function transformUserData(users) {
     return users
-        .filter(user => user.active) // Exclude inactive users
+        .filter(user => user.active) 
         .map(({ id, name, age }) => ({
             id,
             name,
             status: age >= 18 ? 'Adult' : 'Minor'
-        })); // Transform to required format
+        })); 
 }
 
-// Exercise 2: Async Data Fetching
 async function fetchPosts() {
     console.log('Loading posts...');
     try {
@@ -47,7 +23,6 @@ async function fetchPosts() {
     }
 }
 
-// Exercise 3: State Management
 function createTodoStore() {
     let todos = [];
     let idCounter = 1;
@@ -62,7 +37,7 @@ function createTodoStore() {
             );
         },
         getTodos() {
-            return [...todos]; // Return a copy to maintain immutability
+            return [...todos]; 
         },
         getSummary() {
             return {
@@ -73,7 +48,6 @@ function createTodoStore() {
     };
 }
 
-// Exercise 4: Group by Category
 function groupByCategory(products) {
     return products.reduce((acc, { name, category }) => {
         acc[category] = acc[category] || [];
@@ -82,7 +56,6 @@ function groupByCategory(products) {
     }, {});
 }
 
-// UI Interaction Functions
 function runTransformUserData() {
     const users = [
         { id: 1, name: 'Alice', age: 25, active: true },

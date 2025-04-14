@@ -7,48 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>JavaScript Fundamentals Assessment</h1>
-
-        <!-- Exercise 1: Data Transformation -->
-        <div class="exercise">
-            <h2>Exercise 1: Data Transformation</h2>
-            <p>Transform an array of objects into formatted strings.</p>
-            <button onclick="runTransformData()">Run Transformation</button>
-            <div id="output1" class="output"></div>
-        </div>
-
-        <!-- Exercise 2: Async Data Fetching -->
-        <div class="exercise">
-            <h2>Exercise 2: Async Data Fetching</h2>
-            <p>Simulate fetching data from an API asynchronously.</p>
-            <button onclick="runFetchData()">Fetch Data</button>
-            <div id="output2" class="output"></div>
-        </div>
-
-        <!-- Exercise 3: State Management -->
-        <div class="exercise">
-            <h2>Exercise 3: State Management</h2>
-            <p>Simulate React-like state management with a counter and text.</p>
-            <button onclick="incrementCount()">Increment Count</button>
-            <button onclick="changeText()">Change Text</button>
-            <button onclick="unsubscribeListener()">Unsubscribe</button>
-            <div id="output3" class="output"></div>
-        </div>
-
-        <!-- Exercise 4: User Component -->
-        <div class="exercise">
-            <h2>Exercise 4: User Component</h2>
-            <p>A React-like component with state, async data fetching, and data transformation.</p>
-            <div class="user-component">
-                <div id="user-display"></div>
-                <button onclick="updateUserName()">Update Name</button>
-                <button onclick="fetchUserPosts()">Fetch User's Posts</button>
-            </div>
-            <div id="output4" class="output"></div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+    <div id="app"></div>
+    <script src="app.js"></script>
 </body>
 </html>

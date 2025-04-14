@@ -1,98 +1,164 @@
-function transformUserData(users) {
-    return users
-        .filter(user => user.active) 
-        .map(({ id, name, age }) => ({
-            id,
-            name,
-            status: age >= 18 ? 'Adult' : 'Minor'
-        })); 
+// Utility to update output divs
+function updateOutput(divId, content) {
+    const outputDiv = document.getElementById(divId);
+    outputDiv.textContent = content;
 }
 
-async function fetchPosts() {
-    console.log('Loading posts...');
+// Exercise 1: Data Transformation
+function transformData(data) {
+    return data.map(item => `Name: ${item.name}, Age: ${item.age}`).join('\n');
+}
+
+function runTransformData() {
+    const sampleData = [
+        { name: "Alice", age: 25 },
+        { name: "Bob", age: 30 },
+        { name: "Charlie", age: 35 }
+    ];
+    const result = transformData(sampleData);
+    updateOutput('output1', result);
+}
+
+// Exercise 2: Async Data Fetching
+async function fetchData(url) {
     try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const posts = await response.json();
-        const result = posts.slice(0, 5).map(({ id, title, body }) => ({ id, title, body }));
-        console.log('Posts fetched successfully!');
-        return result;
+        const response = await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve([
+                    { id: 1, title: "Post 1" },
+                    { id: 2, title: "Post 2" }
+                ]);
+            }, 1000);
+        });
+        return JSON.stringify(response, null, 2);
     } catch (error) {
-        console.error(`Error fetching posts: ${error.message}`);
-        throw error;
+        return `Error fetching data: ${error.message}`;
     }
 }
 
-function createTodoStore() {
-    let todos = [];
-    let idCounter = 1;
+async function runFetchData() {
+    updateOutput('output2', 'Fetching data...');
+    const data = await fetchData("https://fake-api.com/posts");
+    updateOutput('output2', data);
+}
 
-    return {
-        addTodo(text) {
-            todos = [...todos, { id: idCounter++, text, completed: false }];
-        },
-        toggleTodo(id) {
-            todos = todos.map(todo =>
-                todo.id === id ? { ...todo, completed: !todo.completed } : todo
-            );
-        },
-        getTodos() {
-            return [...todos]; 
-        },
-        getSummary() {
-            return {
-                total: todos.length,
-                completed: todos.filter(todo => todo.completed).length
-            };
+// Exercise 3: State Management
+function createStateManager(initialState) {
+    let state = initialState;
+    const listeners = [];
+
+    function getState() {
+        return state;
+    }
+
+    function setState(newState) {
+        state = { ...state, ...newState };
+        listeners.forEach(listener => listener(state));
+    }
+
+    function subscribe(listener) {
+        listeners.push(listener);
+        return () => {
+            const index = listeners.indexOf(listener);
+            if (index > -1) listeners.splice(index, 1);
+        };
+    }
+
+    return { getState, setState, subscribe };
+}
+
+// Initialize state manager for Exercise 3
+const stateManager = createStateManager({ count: 0, text: "Hello" });
+let unsubscribe;
+
+// Listener to update UI on state change
+function stateListener(newState) {
+    updateOutput('output3', `State: ${JSON.stringify(newState, null, 2)}`);
+}
+
+// Subscribe on page load
+unsubscribe = stateManager.subscribe(stateListener);
+stateListener(stateManager.getState()); // Initial state
+
+function incrementCount() {
+    stateManager.setState({ count: stateManager.getState().count + 1 });
+}
+
+function changeText() {
+    stateManager.setState({ text: stateManager.getState().text === "Hello" ? "World" : "Hello" });
+}
+
+function unsubscribeListener() {
+    if (unsubscribe) {
+        unsubscribe();
+        updateOutput('output3', 'Unsubscribed from state updates.');
+        unsubscribe = null;
+    }
+}
+
+// Exercise 4: User Component
+function createUserComponent() {
+    // State management for the user component
+    const userStateManager = createStateManager({
+        name: "John Doe",
+        age: 28,
+        posts: []
+    });
+
+    // Transform posts data for display
+    function transformPosts(posts) {
+        return posts.map(post => `Post ID: ${post.id}, Title: ${post.title}`).join('\n');
+    }
+
+    // Async function to fetch user's posts
+    async function fetchUserPostsData() {
+        try {
+            const response = await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve([
+                        { id: 101, title: "John's First Post" },
+                        { id: 102, title: "John's Second Post" }
+                    ]);
+                }, 1000);
+            });
+            return response;
+        } catch (error) {
+            updateOutput('output4', `Error fetching posts: ${error.message}`);
+            return [];
         }
-    };
-}
-
-function groupByCategory(products) {
-    return products.reduce((acc, { name, category }) => {
-        acc[category] = acc[category] || [];
-        acc[category].push(name);
-        return acc;
-    }, {});
-}
-
-function runTransformUserData() {
-    const users = [
-        { id: 1, name: 'Alice', age: 25, active: true },
-        { id: 2, name: 'Bob', age: 17, active: false },
-        { id: 3, name: 'Charlie', age: 30, active: true }
-    ];
-    const result = transformUserData(users);
-    document.getElementById('output1').innerText = JSON.stringify(result, null, 2);
-}
-
-async function runFetchPosts() {
-    document.getElementById('output2').innerText = 'Loading...';
-    try {
-        const posts = await fetchPosts();
-        document.getElementById('output2').innerText = JSON.stringify(posts, null, 2);
-    } catch (error) {
-        document.getElementById('output2').innerText = `Error: ${error.message}`;
     }
+
+    // Render the user component
+    function render() {
+        const state = userStateManager.getState();
+        const userDisplay = document.getElementById('user-display');
+        userDisplay.textContent = `User: ${state.name}, Age: ${state.age}`;
+        if (state.posts.length > 0) {
+            updateOutput('output4', transformPosts(state.posts));
+        }
+    }
+
+    // Subscribe to state changes
+    userStateManager.subscribe(render);
+    render(); // Initial render
+
+    // Function to update the user's name
+    function updateUserName() {
+        const newName = userStateManager.getState().name === "John Doe" ? "Jane Smith" : "John Doe";
+        userStateManager.setState({ name: newName });
+    }
+
+    // Function to fetch and display user's posts
+    async function fetchUserPosts() {
+        updateOutput('output4', 'Fetching user posts...');
+        const posts = await fetchUserPostsData();
+        userStateManager.setState({ posts });
+    }
+
+    // Expose functions to the global scope for button onclick handlers
+    window.updateUserName = updateUserName;
+    window.fetchUserPosts = fetchUserPosts;
 }
 
-function runTodoStore() {
-    const store = createTodoStore();
-    store.addTodo('Learn JavaScript');
-    store.addTodo('Build a React app');
-    store.toggleTodo(1);
-    const todos = store.getTodos();
-    const summary = store.getSummary();
-    document.getElementById('output3').innerText = `Todos:\n${JSON.stringify(todos, null, 2)}\n\nSummary:\n${JSON.stringify(summary, null, 2)}`;
-}
-
-function runGroupByCategory() {
-    const products = [
-        { id: 1, name: 'Laptop', category: 'Electronics', price: 1000 },
-        { id: 2, name: 'Shirt', category: 'Clothing', price: 50 },
-        { id: 3, name: 'Phone', category: 'Electronics', price: 800 },
-        { id: 4, name: 'Jeans', category: 'Clothing', price: 80 }
-    ];
-    const result = groupByCategory(products);
-    document.getElementById('output4').innerText = JSON.stringify(result, null, 2);
-}
+// Initialize the User Component on page load
+createUserComponent();

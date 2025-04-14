@@ -1,4 +1,3 @@
-// Utility to update output divs
 function updateOutput(divId, content) {
     const outputDiv = document.getElementById(divId);
     outputDiv.textContent = content;
@@ -67,18 +66,15 @@ function createStateManager(initialState) {
     return { getState, setState, subscribe };
 }
 
-// Initialize state manager for Exercise 3
 const stateManager = createStateManager({ count: 0, text: "Hello" });
 let unsubscribe;
 
-// Listener to update UI on state change
 function stateListener(newState) {
     updateOutput('output3', `State: ${JSON.stringify(newState, null, 2)}`);
 }
 
-// Subscribe on page load
 unsubscribe = stateManager.subscribe(stateListener);
-stateListener(stateManager.getState()); // Initial state
+stateListener(stateManager.getState()); 
 
 function incrementCount() {
     stateManager.setState({ count: stateManager.getState().count + 1 });
@@ -105,12 +101,10 @@ function createUserComponent() {
         posts: []
     });
 
-    // Transform posts data for display
     function transformPosts(posts) {
         return posts.map(post => `Post ID: ${post.id}, Title: ${post.title}`).join('\n');
     }
 
-    // Async function to fetch user's posts
     async function fetchUserPostsData() {
         try {
             const response = await new Promise((resolve) => {
@@ -128,7 +122,6 @@ function createUserComponent() {
         }
     }
 
-    // Render the user component
     function render() {
         const state = userStateManager.getState();
         const userDisplay = document.getElementById('user-display');
@@ -138,27 +131,22 @@ function createUserComponent() {
         }
     }
 
-    // Subscribe to state changes
     userStateManager.subscribe(render);
-    render(); // Initial render
+    render(); 
 
-    // Function to update the user's name
     function updateUserName() {
         const newName = userStateManager.getState().name === "John Doe" ? "Jane Smith" : "John Doe";
         userStateManager.setState({ name: newName });
     }
 
-    // Function to fetch and display user's posts
     async function fetchUserPosts() {
         updateOutput('output4', 'Fetching user posts...');
         const posts = await fetchUserPostsData();
         userStateManager.setState({ posts });
     }
 
-    // Expose functions to the global scope for button onclick handlers
     window.updateUserName = updateUserName;
     window.fetchUserPosts = fetchUserPosts;
 }
 
-// Initialize the User Component on page load
 createUserComponent();

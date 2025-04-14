@@ -1,87 +1,40 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7fa;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
-    color: #333;
+    background-color: #f0f0f0;
 }
 
-.container {
-    max-width: 800px;
+#app {
+    max-width: 600px;
     margin: 0 auto;
-    background: #fff;
+    background: white;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 20px;
-}
-
-.exercise {
-    margin-bottom: 30px;
-    padding: 15px;
-    border: 1px solid #e0e0e0;
     border-radius: 8px;
-    background: #fafafa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.exercise h2 {
-    color: #2980b9;
-    font-size: 1.5em;
-    margin-bottom: 10px;
-}
-
-.exercise p {
-    margin: 5px 0;
-    font-size: 1em;
-    color: #555;
+.user-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
 }
 
 button {
-    background-color: #3498db;
+    padding: 8px 16px;
+    background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s;
-    margin: 5px 0;
+    margin: 5px;
 }
 
 button:hover {
-    background-color: #2980b9;
+    background-color: #0056b3;
 }
 
-.output {
-    margin-top: 10px;
-    padding: 10px;
-    background: #ecf0f1;
-    border-radius: 5px;
-    font-family: 'Courier New', Courier, monospace;
-    white-space: pre-wrap;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.error {
-    color: #e74c3c;
-}
-
-/* User Component Specific Styles */
-.user-component {
-    margin-bottom: 10px;
-}
-
-#user-display {
-    padding: 10px;
-    background: #e8f4f8;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-size: 1em;
-    color: #2c3e50;
+h2 {
+    color: #333;
 }

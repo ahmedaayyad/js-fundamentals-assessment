@@ -5,7 +5,6 @@ function updateOutput(divId, htmlString) {
 }
 
 // Exercise 1: Data Transformation
-// Fetch users, filter inactive ones, transform to {id, fullName, email}, and sort by fullName
 async function transformData() {
     try {
         const response = await fetch("https://jsonplaceholder.typicode.com/users");
@@ -20,10 +19,9 @@ async function transformData() {
                 email: user.email,
                 isActive: user.id % 2 === 0 // Simulate active status (even IDs are active)
             }))
-            .filter(user => user.isActive) // Filter only active users
-            .sort((a, b) => a.fullName.localeCompare(b.fullName)); // Sort alphabetically by fullName
+            .filter(user => user.isActive)
+            .sort((a, b) => a.fullName.localeCompare(b.fullName));
 
-        // Return as HTML string
         return transformedUsers.map(user => `
             <div class="transformed-user">
                 <p>ID: ${user.id}</p>
@@ -43,13 +41,11 @@ async function runTransformData() {
 }
 
 // Exercise 2: Async Data Fetching
-// Fetch actual posts by userId and return their titles
 async function fetchData(userId) {
     try {
         const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
         if (!response.ok) throw new Error('Failed to fetch posts');
         const posts = await response.json();
-        // Return only the titles of the posts as an HTML string
         return posts.map(post => `<li>${post.title}</li>`).join('');
     } catch (error) {
         return `<div class="error">Error fetching data: ${error.message}</div>`;
@@ -57,7 +53,7 @@ async function fetchData(userId) {
 }
 
 async function runFetchData() {
-    const userId = 1; // Example userId
+    const userId = 1;
     updateOutput('output2', '<div>Fetching data...</div>');
     const data = await fetchData(userId);
     updateOutput('output2', `<ul>${data}</ul>`);
@@ -99,7 +95,7 @@ function stateListener(newState) {
 
 // Subscribe on page load
 unsubscribe = stateManager.subscribe(stateListener);
-stateListener(stateManager.getState()); // Initial state
+stateListener(stateManager.getState());
 
 function incrementCount() {
     stateManager.setState({ count: stateManager.getState().count + 1 });
@@ -119,7 +115,6 @@ function unsubscribeListener() {
 
 // Exercise 4: User Component
 function createUserComponent() {
-    // State management for the user component
     const userStateManager = createStateManager({
         selectedUserId: null,
         users: [],
@@ -127,39 +122,34 @@ function createUserComponent() {
         isFetching: false
     });
 
-    // Fetch users from API
     async function fetchUsers() {
         try {
             const response = await fetch("https://jsonplaceholder.typicode.com/users");
             if (!response.ok) throw new Error('Failed to fetch users');
             const users = await response.json();
 
-            // Transform users (include isActive for conditional badge)
             return users.map(user => ({
                 id: user.id,
                 fullName: user.name,
                 email: user.email,
-                isActive: user.id % 2 === 0 // Simulate active status (even IDs are active)
+                isActive: user.id % 2 === 0
             }));
         } catch (error) {
             return { error: `Error fetching users: ${error.message}` };
         }
     }
 
-    // Fetch posts for a specific user by userId
     async function fetchUserPostsData(userId) {
         try {
             const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
             if (!response.ok) throw new Error('Failed to fetch posts');
             const posts = await response.json();
-            // Return only the titles of the posts
             return posts.map(post => post.title);
         } catch (error) {
             return { error: `Error fetching posts: ${error.message}` };
         }
     }
 
-    // Generate HTML string for user cards
     function generateUserCards(users, selectedUserId) {
         if (users.error) {
             return `<div class="error">${users.error}</div>`;
@@ -173,14 +163,15 @@ function createUserComponent() {
                 <div class="user-info">
                     <h3>${user.fullName}</h3>
                     <p>Email: ${user.email}</p>
-                    ${user.isActive ? '<span class="active-badge">Active</span>' : ''}
+                    <span class="status-badge ${user.isActive ? 'active' : 'inactive'}">
+                        ${user.isActive ? 'Active' : 'Inactive'}
+                    </span>
                 </div>
                 <button onclick="selectUser(${user.id})">Select User</button>
             </div>
         `).join('');
     }
 
-    // Generate HTML string for posts
     function generatePostsHtml(posts) {
         if (posts.error) {
             return `<div class="error">${posts.error}</div>`;
@@ -198,7 +189,6 @@ function createUserComponent() {
         `;
     }
 
-    // Render the user component
     function render() {
         const state = userStateManager.getState();
         let htmlString = '';
@@ -206,10 +196,7 @@ function createUserComponent() {
         if (state.isFetching) {
             htmlString = '<div>Fetching user data...</div>';
         } else {
-            // Generate user cards
             htmlString = generateUserCards(state.users, state.selectedUserId);
-
-            // If a user is selected, show their posts
             if (state.selectedUserId && state.posts.length > 0) {
                 htmlString += generatePostsHtml(state.posts);
             }
@@ -218,7 +205,6 @@ function createUserComponent() {
         updateOutput('output4', htmlString);
     }
 
-    // Fetch users and initialize the component
     async function initialize() {
         userStateManager.setState({ isFetching: true });
         const users = await fetchUsers();
@@ -226,7 +212,6 @@ function createUserComponent() {
         render();
     }
 
-    // Function to select a user and fetch their posts
     async function selectUser(userId) {
         userStateManager.setState({ selectedUserId: userId, isFetching: true, posts: [] });
         const posts = await fetchUserPostsData(userId);
@@ -234,15 +219,9 @@ function createUserComponent() {
         render();
     }
 
-    // Subscribe to state changes
     userStateManager.subscribe(render);
-
-    // Expose the selectUser function to the global scope
     window.selectUser = selectUser;
-
-    // Initialize the component
     initialize();
 }
 
-// Initialize the User Component on page load
 createUserComponent();

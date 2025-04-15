@@ -5,36 +5,62 @@ function updateOutput(divId, htmlString) {
 }
 
 // Exercise 1: Data Transformation
-function transformData(data) {
-    return data.map(item => `Name: ${item.name}, Age: ${item.age}`).join('\n');
+// Fetch users, filter inactive ones, transform to {id, fullName, email}, and sort by fullName
+async function transformData() {
+    try {
+        const response = await fetch("https://jsonplaceholder.typicode.com/users");
+        if (!response.ok) throw new Error('Failed to fetch users');
+        const users = await response.json();
+
+        // Transform, filter, and sort
+        const transformedUsers = users
+            .map(user => ({
+                id: user.id,
+                fullName: user.name,
+                email: user.email,
+                isActive: user.id % 2 === 0 // Simulate active status (even IDs are active)
+            }))
+            .filter(user => user.isActive) // Filter only active users
+            .sort((a, b) => a.fullName.localeCompare(b.fullName)); // Sort alphabetically by fullName
+
+        // Return as HTML string
+        return transformedUsers.map(user => `
+            <div class="transformed-user">
+                <p>ID: ${user.id}</p>
+                <p>Full Name: ${user.fullName}</p>
+                <p>Email: ${user.email}</p>
+            </div>
+        `).join('');
+    } catch (error) {
+        return `<div class="error">Error transforming data: ${error.message}</div>`;
+    }
 }
 
-function runTransformData() {
-    const sampleData = [
-        { name: "Alice", age: 25 },
-        { name: "Bob", age: 30 },
-        { name: "Charlie", age: 35 }
-    ];
-    const result = transformData(sampleData);
-    updateOutput('output1', `<pre>${result}</pre>`);
+async function runTransformData() {
+    updateOutput('output1', '<div>Transforming data...</div>');
+    const result = await transformData();
+    updateOutput('output1', result);
 }
 
 // Exercise 2: Async Data Fetching
-async function fetchData(url) {
+// Fetch actual posts by userId and return their titles
+async function fetchData(userId) {
     try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        return JSON.stringify(data, null, 2);
+        const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch posts');
+        const posts = await response.json();
+        // Return only the titles of the posts as an HTML string
+        return posts.map(post => `<li>${post.title}</li>`).join('');
     } catch (error) {
-        return `Error fetching data: ${error.message}`;
+        return `<div class="error">Error fetching data: ${error.message}</div>`;
     }
 }
 
 async function runFetchData() {
-    updateOutput('output2', '<pre>Fetching data...</pre>');
-    const data = await fetchData("https://jsonplaceholder.typicode.com/posts");
-    updateOutput('output2', `<pre>${data}</pre>`);
+    const userId = 1; // Example userId
+    updateOutput('output2', '<div>Fetching data...</div>');
+    const data = await fetchData(userId);
+    updateOutput('output2', `<ul>${data}</ul>`);
 }
 
 // Exercise 3: State Management
@@ -101,25 +127,20 @@ function createUserComponent() {
         isFetching: false
     });
 
-    // Fetch users from API and transform data
+    // Fetch users from API
     async function fetchUsers() {
         try {
             const response = await fetch("https://jsonplaceholder.typicode.com/users");
             if (!response.ok) throw new Error('Failed to fetch users');
             const users = await response.json();
 
-            // Transform and filter users
-            const transformedUsers = users
-                .map(user => ({
-                    id: user.id,
-                    fullName: user.name,
-                    email: user.email,
-                    isActive: user.id % 2 === 0 // Simulate active status (even IDs are active)
-                }))
-                .filter(user => user.isActive) // Filter only active users
-                .sort((a, b) => a.fullName.localeCompare(b.fullName)); // Sort alphabetically by fullName
-
-            return transformedUsers;
+            // Transform users (include isActive for conditional badge)
+            return users.map(user => ({
+                id: user.id,
+                fullName: user.name,
+                email: user.email,
+                isActive: user.id % 2 === 0 // Simulate active status (even IDs are active)
+            }));
         } catch (error) {
             return { error: `Error fetching users: ${error.message}` };
         }
@@ -144,7 +165,7 @@ function createUserComponent() {
             return `<div class="error">${users.error}</div>`;
         }
         if (users.length === 0) {
-            return '<div>No active users available.</div>';
+            return '<div>No users available.</div>';
         }
 
         return users.map(user => `

@@ -85,3 +85,59 @@ button:hover {
     font-size: 1em;
     color: #2c3e50;
 }
+
+/* User Card Styles */
+.user-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.user-card.selected {
+    border-color: #3498db;
+    background: #e8f4f8;
+}
+
+.user-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+}
+
+.user-info p {
+    margin: 0 0 5px 0;
+    color: #555;
+}
+
+.active-badge {
+    display: inline-block;
+    background: #2ecc71;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+.posts-list {
+    margin-top: 10px;
+}
+
+.posts-list h4 {
+    margin: 0 0 5px 0;
+}
+
+.posts-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.posts-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.posts-list li:last-child {
+    border-bottom: none;
+}

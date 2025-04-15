@@ -4,6 +4,37 @@ function updateOutput(divId, htmlString) {
     outputDiv.innerHTML = htmlString;
 }
 
+// System Logs Utility
+const systemLogs = [];
+function addLog(message) {
+    const timestamp = new Date().toLocaleTimeString('en-GB', { hour12: false });
+    systemLogs.push(`${timestamp} - ${message}`);
+    updateLogsDisplay();
+}
+
+function updateLogsDisplay() {
+    const logsHtml = systemLogs.join('\n');
+    updateOutput('output5', `<pre>${logsHtml}</pre>`);
+}
+
+function formatLogs() {
+    systemLogs.length = 0; // Clear logs
+    updateLogsDisplay();
+    addLog("System logs formatted");
+}
+
+function exportLogs() {
+    const logsText = systemLogs.join('\n');
+    const blob = new Blob([logsText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'system-logs.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    addLog("System logs exported");
+}
+
 // Exercise 1: Data Transformation
 async function transformData() {
     try {
@@ -11,13 +42,12 @@ async function transformData() {
         if (!response.ok) throw new Error('Failed to fetch users');
         const users = await response.json();
 
-        // Transform, filter, and sort
         const transformedUsers = users
             .map(user => ({
                 id: user.id,
                 fullName: user.name,
                 email: user.email,
-                isActive: user.id % 2 === 0 // Simulate active status (even IDs are active)
+                isActive: user.id % 2 === 0
             }))
             .filter(user => user.isActive)
             .sort((a, b) => a.fullName.localeCompare(b.fullName));
@@ -38,6 +68,7 @@ async function runTransformData() {
     updateOutput('output1', '<div>Transforming data...</div>');
     const result = await transformData();
     updateOutput('output1', result);
+    addLog("Transformed user data");
 }
 
 // Exercise 2: Async Data Fetching
@@ -57,6 +88,7 @@ async function runFetchData() {
     updateOutput('output2', '<div>Fetching data...</div>');
     const data = await fetchData(userId);
     updateOutput('output2', `<ul>${data}</ul>`);
+    addLog(`Fetched ${data.split('<li>').length - 1} posts for user ID ${userId}`);
 }
 
 // Exercise 3: State Management
@@ -88,21 +120,21 @@ function createStateManager(initialState) {
 const stateManager = createStateManager({ count: 0, text: "Hello" });
 let unsubscribe;
 
-// Listener to update UI on state change
 function stateListener(newState) {
     updateOutput('output3', `<pre>State: ${JSON.stringify(newState, null, 2)}</pre>`);
 }
 
-// Subscribe on page load
 unsubscribe = stateManager.subscribe(stateListener);
 stateListener(stateManager.getState());
 
 function incrementCount() {
     stateManager.setState({ count: stateManager.getState().count + 1 });
+    addLog("Incremented counter");
 }
 
 function changeText() {
     stateManager.setState({ text: stateManager.getState().text === "Hello" ? "World" : "Hello" });
+    addLog("Changed text");
 }
 
 function unsubscribeListener() {
@@ -110,6 +142,7 @@ function unsubscribeListener() {
         unsubscribe();
         updateOutput('output3', '<pre>Unsubscribed from state updates.</pre>');
         unsubscribe = null;
+        addLog("Unsubscribed from state updates");
     }
 }
 
@@ -128,13 +161,18 @@ function createUserComponent() {
             if (!response.ok) throw new Error('Failed to fetch users');
             const users = await response.json();
 
-            return users.map(user => ({
+            const transformedUsers = users.map(user => ({
                 id: user.id,
                 fullName: user.name,
                 email: user.email,
-                isActive: user.id % 2 === 0
+                isActive: user.id % 2 === 0,
+                position: "Senior Developer" // Static position for demo
             }));
+
+            addLog(`Loaded ${transformedUsers.length} active users`);
+            return transformedUsers;
         } catch (error) {
+            addLog(`Error fetching users: ${error.message}`);
             return { error: `Error fetching users: ${error.message}` };
         }
     }
@@ -144,13 +182,15 @@ function createUserComponent() {
             const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
             if (!response.ok) throw new Error('Failed to fetch posts');
             const posts = await response.json();
+            addLog(`Fetched ${posts.length} posts for user ID ${userId}`);
             return posts.map(post => post.title);
         } catch (error) {
+            addLog(`Error fetching posts: ${error.message}`);
             return { error: `Error fetching posts: ${error.message}` };
         }
     }
 
-    function generateUserCards(users, selectedUserId) {
+    function generateUserTable(users, selectedUserId) {
         if (users.error) {
             return `<div class="error">${users.error}</div>`;
         }
@@ -158,18 +198,42 @@ function createUserComponent() {
             return '<div>No users available.</div>';
         }
 
-        return users.map(user => `
-            <div class="user-card ${user.id === selectedUserId ? 'selected' : ''}">
-                <div class="user-info">
-                    <h3>${user.fullName}</h3>
-                    <p>Email: ${user.email}</p>
-                    <span class="status-badge ${user.isActive ? 'active' : 'inactive'}">
-                        ${user.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                </div>
-                <button onclick="selectUser(${user.id})">Select User</button>
-            </div>
-        `).join('');
+        return `
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(user => `
+                        <tr class="${user.id === selectedUserId ? 'selected' : ''}">
+                            <td>${user.id}</td>
+                            <td>${user.fullName}</td>
+                            <td>${user.email}</td>
+                            <td>${user.position}</td>
+                            <td>
+                                <span class="status-badge ${user.isActive ? 'active' : 'inactive'}">
+                                    ${user.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="view-btn" onclick="selectUser(${user.id})">View</button>
+                                <button class="${user.isActive ? 'deactivate-btn' : 'active-btn'}" onclick="toggleUserStatus(${user.id})">
+                                    ${user.isActive ? 'Deactivate' : 'Active'}
+                                </button>
+                                <button class="message-btn" onclick="messageUser(${user.id})">Message</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
     }
 
     function generatePostsHtml(posts) {
@@ -196,7 +260,7 @@ function createUserComponent() {
         if (state.isFetching) {
             htmlString = '<div>Fetching user data...</div>';
         } else {
-            htmlString = generateUserCards(state.users, state.selectedUserId);
+            htmlString = generateUserTable(state.users, state.selectedUserId);
             if (state.selectedUserId && state.posts.length > 0) {
                 htmlString += generatePostsHtml(state.posts);
             }
@@ -209,6 +273,7 @@ function createUserComponent() {
         userStateManager.setState({ isFetching: true });
         const users = await fetchUsers();
         userStateManager.setState({ users, isFetching: false });
+        addLog("System initialized");
         render();
     }
 
@@ -219,8 +284,29 @@ function createUserComponent() {
         render();
     }
 
+    function toggleUserStatus(userId) {
+        const users = userStateManager.getState().users;
+        const updatedUsers = users.map(user => {
+            if (user.id === userId) {
+                const newStatus = !user.isActive;
+                addLog(`Status updated: {"name": "${user.fullName}", "status": "${newStatus ? 'Active' : 'Inactive'}", "lastSeen": "${new Date().toLocaleString('en-GB')}"}`);
+                return { ...user, isActive: newStatus };
+            }
+            return user;
+        });
+        userStateManager.setState({ users: updatedUsers });
+    }
+
+    function messageUser(userId) {
+        const user = userStateManager.getState().users.find(u => u.id === userId);
+        addLog(`Message sent to user: ${user.fullName}`);
+        alert(`Message sent to ${user.fullName}!`); // Simulate messaging
+    }
+
     userStateManager.subscribe(render);
     window.selectUser = selectUser;
+    window.toggleUserStatus = toggleUserStatus;
+    window.messageUser = messageUser;
     initialize();
 }
 

@@ -72,21 +72,21 @@ button:hover {
     color: #e74c3c;
 }
 
-/* User Component Specific Styles */
-.user-component {
-    margin-bottom: 10px;
-}
-
-#user-display {
+/* Styles for Exercise 1: Transformed Users */
+.transformed-user {
+    border: 1px solid #ddd;
     padding: 10px;
-    background: #e8f4f8;
-    border-radius: 5px;
     margin-bottom: 10px;
-    font-size: 1em;
-    color: #2c3e50;
+    border-radius: 5px;
+    background: #fff;
 }
 
-/* User Card Styles */
+.transformed-user p {
+    margin: 0 0 5px 0;
+    color: #555;
+}
+
+/* Styles for Exercise 4: User Component */
 .user-card {
     border: 1px solid #ddd;
     padding: 10px;

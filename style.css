@@ -91,92 +91,80 @@ button:active {
     color: #555;
 }
 
-/* Styles for Exercise 4: User Component (Table Layout) */
-.user-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border-radius: 5px;
-    overflow: hidden;
+/* Styles for Exercise 4: User Component (Card Layout) */
+.user-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
 }
 
-.user-table thead {
-    background: #a93226; /* Dark red color from the image */
-    color: white;
+.user-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.user-table th,
-.user-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0;
+.user-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
-.user-table th {
-    font-weight: 600;
+.user-card.selected {
+    background: #e6f3ff;
+    border-color: #2980b9;
 }
 
-.user-table td {
-    color: #444;
+.user-info {
+    margin-bottom: 10px;
 }
 
-.user-table tr:hover {
-    background: #f5f5f5;
+.user-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+    color: #2c3e50;
 }
 
-.user-table .status-badge {
+.user-info p {
+    margin: 0 0 5px 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.user-info .status-badge {
     display: inline-block;
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 0.85em;
     font-weight: 500;
-}
-
-.user-table .status-badge.active {
-    background: #2ecc71;
+    background: #2ecc71; /* Green for Active */
     color: white;
 }
 
-.user-table .status-badge.inactive {
-    background: #e74c3c;
-    color: white;
+.user-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.user-table button {
+.user-actions button {
+    background: #f39c12; /* Orange for buttons */
     padding: 6px 12px;
     font-size: 0.9em;
 }
 
-.user-table .view-btn {
-    background: #a93226; /* Dark red for View button */
+.user-actions button:hover {
+    background: #e67e22;
 }
 
-.user-table .view-btn:hover {
-    background: #922b21;
+.user-actions .message-btn {
+    background: #9b59b6; /* Purple for Message button */
 }
 
-.user-table .active-btn {
-    background: #2ecc71; /* Green for Active button */
-}
-
-.user-table .active-btn:hover {
-    background: #27ae60;
-}
-
-.user-table .deactivate-btn {
-    background: #e74c3c; /* Red for Deactivate button */
-}
-
-.user-table .deactivate-btn:hover {
-    background: #c0392b;
-}
-
-.user-table .message-btn {
-    background: #2ecc71; /* Green for Message button */
-}
-
-.user-table .message-btn:hover {
-    background: #27ae60;
+.user-actions .message-btn:hover {
+    background: #8e44ad;
 }
 
 .posts-list {
@@ -212,7 +200,7 @@ button:active {
 
 /* Styles for Exercise 5: System Logs */
 .system-logs {
-    background: #1e2a44; /* Dark blue background from the image */
+    background: #1e2a44;
     color: #fff;
     font-family: 'Courier New', Courier, monospace;
     padding: 15px;
@@ -229,7 +217,7 @@ button:active {
 }
 
 .system-logs-header button {
-    background: #a93226; /* Dark red for Format Logs and Export Data buttons */
+    background: #a93226;
 }
 
 .system-logs-header button:hover {

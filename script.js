@@ -1,6 +1,7 @@
-function updateOutput(divId, content) {
+// Utility to update output divs with an HTML string
+function updateOutput(divId, htmlString) {
     const outputDiv = document.getElementById(divId);
-    outputDiv.textContent = content;
+    outputDiv.innerHTML = htmlString;
 }
 
 // Exercise 1: Data Transformation
@@ -15,30 +16,25 @@ function runTransformData() {
         { name: "Charlie", age: 35 }
     ];
     const result = transformData(sampleData);
-    updateOutput('output1', result);
+    updateOutput('output1', `<pre>${result}</pre>`);
 }
 
 // Exercise 2: Async Data Fetching
 async function fetchData(url) {
     try {
-        const response = await new Promise((resolve) => {
-            setTimeout(() => {
-                resolve([
-                    { id: 1, title: "Post 1" },
-                    { id: 2, title: "Post 2" }
-                ]);
-            }, 1000);
-        });
-        return JSON.stringify(response, null, 2);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return JSON.stringify(data, null, 2);
     } catch (error) {
         return `Error fetching data: ${error.message}`;
     }
 }
 
 async function runFetchData() {
-    updateOutput('output2', 'Fetching data...');
-    const data = await fetchData("https://fake-api.com/posts");
-    updateOutput('output2', data);
+    updateOutput('output2', '<pre>Fetching data...</pre>');
+    const data = await fetchData("https://jsonplaceholder.typicode.com/posts");
+    updateOutput('output2', `<pre>${data}</pre>`);
 }
 
 // Exercise 3: State Management
@@ -66,15 +62,18 @@ function createStateManager(initialState) {
     return { getState, setState, subscribe };
 }
 
+// Initialize state manager for Exercise 3
 const stateManager = createStateManager({ count: 0, text: "Hello" });
 let unsubscribe;
 
+// Listener to update UI on state change
 function stateListener(newState) {
-    updateOutput('output3', `State: ${JSON.stringify(newState, null, 2)}`);
+    updateOutput('output3', `<pre>State: ${JSON.stringify(newState, null, 2)}</pre>`);
 }
 
+// Subscribe on page load
 unsubscribe = stateManager.subscribe(stateListener);
-stateListener(stateManager.getState()); 
+stateListener(stateManager.getState()); // Initial state
 
 function incrementCount() {
     stateManager.setState({ count: stateManager.getState().count + 1 });
@@ -87,7 +86,7 @@ function changeText() {
 function unsubscribeListener() {
     if (unsubscribe) {
         unsubscribe();
-        updateOutput('output3', 'Unsubscribed from state updates.');
+        updateOutput('output3', '<pre>Unsubscribed from state updates.</pre>');
         unsubscribe = null;
     }
 }
@@ -96,57 +95,133 @@ function unsubscribeListener() {
 function createUserComponent() {
     // State management for the user component
     const userStateManager = createStateManager({
-        name: "John Doe",
-        age: 28,
-        posts: []
+        selectedUserId: null,
+        users: [],
+        posts: [],
+        isFetching: false
     });
 
-    function transformPosts(posts) {
-        return posts.map(post => `Post ID: ${post.id}, Title: ${post.title}`).join('\n');
-    }
-
-    async function fetchUserPostsData() {
+    // Fetch users from API and transform data
+    async function fetchUsers() {
         try {
-            const response = await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve([
-                        { id: 101, title: "John's First Post" },
-                        { id: 102, title: "John's Second Post" }
-                    ]);
-                }, 1000);
-            });
-            return response;
+            const response = await fetch("https://jsonplaceholder.typicode.com/users");
+            if (!response.ok) throw new Error('Failed to fetch users');
+            const users = await response.json();
+
+            // Transform and filter users
+            const transformedUsers = users
+                .map(user => ({
+                    id: user.id,
+                    fullName: user.name,
+                    email: user.email,
+                    isActive: user.id % 2 === 0 // Simulate active status (even IDs are active)
+                }))
+                .filter(user => user.isActive) // Filter only active users
+                .sort((a, b) => a.fullName.localeCompare(b.fullName)); // Sort alphabetically by fullName
+
+            return transformedUsers;
         } catch (error) {
-            updateOutput('output4', `Error fetching posts: ${error.message}`);
-            return [];
+            return { error: `Error fetching users: ${error.message}` };
         }
     }
 
+    // Fetch posts for a specific user by userId
+    async function fetchUserPostsData(userId) {
+        try {
+            const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
+            if (!response.ok) throw new Error('Failed to fetch posts');
+            const posts = await response.json();
+            // Return only the titles of the posts
+            return posts.map(post => post.title);
+        } catch (error) {
+            return { error: `Error fetching posts: ${error.message}` };
+        }
+    }
+
+    // Generate HTML string for user cards
+    function generateUserCards(users, selectedUserId) {
+        if (users.error) {
+            return `<div class="error">${users.error}</div>`;
+        }
+        if (users.length === 0) {
+            return '<div>No active users available.</div>';
+        }
+
+        return users.map(user => `
+            <div class="user-card ${user.id === selectedUserId ? 'selected' : ''}">
+                <div class="user-info">
+                    <h3>${user.fullName}</h3>
+                    <p>Email: ${user.email}</p>
+                    ${user.isActive ? '<span class="active-badge">Active</span>' : ''}
+                </div>
+                <button onclick="selectUser(${user.id})">Select User</button>
+            </div>
+        `).join('');
+    }
+
+    // Generate HTML string for posts
+    function generatePostsHtml(posts) {
+        if (posts.error) {
+            return `<div class="error">${posts.error}</div>`;
+        }
+        if (posts.length === 0) {
+            return '<div>No posts available for this user.</div>';
+        }
+        return `
+            <div class="posts-list">
+                <h4>Posts:</h4>
+                <ul>
+                    ${posts.map(title => `<li>${title}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    // Render the user component
     function render() {
         const state = userStateManager.getState();
-        const userDisplay = document.getElementById('user-display');
-        userDisplay.textContent = `User: ${state.name}, Age: ${state.age}`;
-        if (state.posts.length > 0) {
-            updateOutput('output4', transformPosts(state.posts));
+        let htmlString = '';
+
+        if (state.isFetching) {
+            htmlString = '<div>Fetching user data...</div>';
+        } else {
+            // Generate user cards
+            htmlString = generateUserCards(state.users, state.selectedUserId);
+
+            // If a user is selected, show their posts
+            if (state.selectedUserId && state.posts.length > 0) {
+                htmlString += generatePostsHtml(state.posts);
+            }
         }
+
+        updateOutput('output4', htmlString);
     }
 
+    // Fetch users and initialize the component
+    async function initialize() {
+        userStateManager.setState({ isFetching: true });
+        const users = await fetchUsers();
+        userStateManager.setState({ users, isFetching: false });
+        render();
+    }
+
+    // Function to select a user and fetch their posts
+    async function selectUser(userId) {
+        userStateManager.setState({ selectedUserId: userId, isFetching: true, posts: [] });
+        const posts = await fetchUserPostsData(userId);
+        userStateManager.setState({ posts, isFetching: false });
+        render();
+    }
+
+    // Subscribe to state changes
     userStateManager.subscribe(render);
-    render(); 
 
-    function updateUserName() {
-        const newName = userStateManager.getState().name === "John Doe" ? "Jane Smith" : "John Doe";
-        userStateManager.setState({ name: newName });
-    }
+    // Expose the selectUser function to the global scope
+    window.selectUser = selectUser;
 
-    async function fetchUserPosts() {
-        updateOutput('output4', 'Fetching user posts...');
-        const posts = await fetchUserPostsData();
-        userStateManager.setState({ posts });
-    }
-
-    window.updateUserName = updateUserName;
-    window.fetchUserPosts = fetchUserPosts;
+    // Initialize the component
+    initialize();
 }
 
+// Initialize the User Component on page load
 createUserComponent();
